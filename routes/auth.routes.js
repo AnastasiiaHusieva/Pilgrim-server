@@ -27,8 +27,17 @@ router.post("/signup", (req, res, next) => {
   }
 
   // This regular expression check that the email is of a valid format
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  if (!emailRegex.test(email)) {
+
+  const partsAfterAtSymbol = email.split("@")[1];
+
+  const dotIndex = partsAfterAtSymbol.indexOf(".");
+  if (
+    !emailRegex.test(email) ||
+    dotIndex === -1 ||
+    partsAfterAtSymbol.indexOf(".", dotIndex + 1) !== -1
+  ) {
     res.status(400).json({ message: "Provide a valid email address." });
     return;
   }
