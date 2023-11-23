@@ -18,18 +18,12 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Name is required."],
     },
-    messagesSent: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Message",
-      },
-    ],
-    messagesReceived: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Message",
-      },
-    ],
+    // myconversations: [
+    //   {
+    //     type: Schema.Types.ObjectId,
+    //     ref: "Chat",
+    //   },
+    // ],
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`

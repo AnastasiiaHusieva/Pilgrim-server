@@ -8,14 +8,21 @@
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-jwt": "^8.4.1",
+    "express-session": "^1.17.3",
+    "js-sha512": "^0.8.0",
+    "jsdom": "^22.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "pusher": "^5.2.0",
+    "save": "^2.9.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

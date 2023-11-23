@@ -24,6 +24,29 @@ function getTokenFromHeaders(req) {
 }
 
 // Export the middleware so that we can use it to create protected routes
+
+const extractUserIdFromToken = (req, res, next) => {
+  // Use express-jwt to validate and decode the token
+  jwt({
+    secret: process.env.TOKEN_SECRET,
+    algorithms: ["HS256"],
+    requestProperty: "payload",
+    getToken: getTokenFromHeaders,
+  })(req, res, (err) => {
+    if (err) {
+      return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    }
+
+    // The user ID should be available in req.payload
+    const userId = req.payload.userId;
+
+    // Attach the user ID to the request object
+    req.userId = userId;
+
+    next();
+  });
+};
 module.exports = {
   isAuthenticated,
+  extractUserIdFromToken,
 };

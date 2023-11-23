@@ -1,15 +1,52 @@
 // ℹ️ Gets access to environment variables/settings
 // https://www.npmjs.com/package/dotenv
 require("dotenv").config();
+// pusher-event-chat/server/server.js
+require("dotenv").config({
+  path: "variable.env",
+});
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
+const session = require("express-session");
+const Pusher = require("pusher");
+const mysql = require("mysql");
+const sha512 = require("js-sha512").sha512;
+var jsdom = require("jsdom");
+
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APP_ID,
+  key: process.env.PUSHER_APP_KEY,
+  secret: process.env.PUSHER_APP_SECRET,
+  cluster: process.env.PUSHER_APP_CLUSTER,
+  forceTLS: true,
+});
 
 // ℹ️ Connects to the database
 require("./db");
 const cors = require("cors");
 // Handles http requests (express is node js framework)
 // https://www.npmjs.com/package/express
-const express = require("express");
+// const express = require("express");
 // diogo;
+
 const app = express();
+app.use(
+  session({
+    secret: "somesecrethere",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+
+app.use(bodyParser.json());
+app.use(
+  bodyParser.urlencoded({
+    extended: false,
+  })
+);
+app.use(express.static(path.join(__dirname, "/../public")));
+
 app.use(cors());
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require("./config")(app);
@@ -21,8 +58,14 @@ app.use("/api", indexRoutes);
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
 
-const messageRoutes = require("./routes/message.routes");
-app.use("/inbox", messageRoutes);
+const inboxRoutes = require("./routes/message.routes");
+app.use("/inbox", inboxRoutes);
+
+const userRoutes = require("./routes/user.routes");
+app.use("/user", userRoutes);
+
+const chatRoutes = require("./routes/chat.routes");
+app.use("/chat", chatRoutes);
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);

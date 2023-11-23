@@ -6,14 +6,9 @@ const messageSchema = new mongoose.Schema({
     ref: "User",
     require: true,
   },
-  recipientId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    require: true,
-  },
-  message: {
+  text: {
     type: String,
-    require: true,
+    required: true,
   },
   isRead: {
     type: Boolean,
