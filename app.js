@@ -67,6 +67,15 @@ app.use("/user", userRoutes);
 const chatRoutes = require("./routes/chat.routes");
 app.use("/chat", chatRoutes);
 
+const postsRoutes = require("./routes/posts.routes");
+app.use("/posts", postsRoutes);
+
+const likesRoutes = require("./routes/likes.routes");
+app.use("/likes", likesRoutes);
+
+const commentsRoutes = require("./routes/comments.routes");
+app.use("/comments", commentsRoutes);
+
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
 
