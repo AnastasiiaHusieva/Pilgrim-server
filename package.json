@@ -22,6 +22,7 @@
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "pusher": "^5.2.0",
+    "pusher-js": "^8.3.0",
     "save": "^2.9.0"
   },
   "devDependencies": {

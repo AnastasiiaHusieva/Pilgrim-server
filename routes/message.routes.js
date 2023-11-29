@@ -5,6 +5,14 @@ const User = require("../models/User.model.js");
 const Chat = require("../models/Chat.model");
 const Pusher = require("pusher");
 
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APP_ID,
+  key: process.env.PUSHER_APP_KEY,
+  secret: process.env.PUSHER_APP_SECRET,
+  cluster: process.env.PUSHER_APP_CLUSTER,
+  forceTLS: true,
+});
+
 // router.get("/", (req, res, next) => {
 //   Message.find()
 //     .populate("senderId")
@@ -55,7 +63,7 @@ router.post("/messages", async (req, res) => {
       },
       { new: true }
     );
-
+    pusher.trigger();
     res.status(201).json(savedMessage);
   } catch (error) {
     console.error("Error:", error);
