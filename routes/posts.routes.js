@@ -1,28 +1,55 @@
 const express = require("express");
 const router = express.Router();
+const { isAuthenticated } = require('../middleware/jwt.middleware')
 const Post = require("../models/Post.model");
+const City = require("../models/City.model");
 
+router.use(isAuthenticated);
 
-router.get("/", async (req, res) => {
+router.get("/:cityId", async (req, res) => {
+  const cityId = req.params.cityId;
+  console.log('Received CityId:', cityId); 
   try {
-    const posts = await Post.find()
-      .populate("user")
-      .exec();
-    res.status(200).json(posts);
+    const city = await City.findById(cityId);
+
+    if (!city) {
+      return res.status(404).json({ error: 'City not found' });
+    }
+    const posts = await Post.find({ _id: { $in: city.posts } }).populate('user');
+
+    res.json({ city, posts });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/:cityId", async (req, res) => {
+  const { cityId } = req.params;
+  const { caption, photo, user } = req.body;
+  console.log('Received CityId:', cityId); 
+
   try {
-    const { user, caption, photo } = req.body;
+    const city = await City.findById(cityId);
+    console.log('City:', city);
+    if (!city) {
+      return res.status(404).json({ error: 'City not found' });
+    }
 
-    const post = await Post.create({ user, caption, photo });
+    const newPost = new Post({
+      caption,
+      photo,
+      user,
+      city: cityId,
+    });
+   await newPost.save();
 
-    res.status(201).json(post);
+    city.posts.push(newPost._id);
+    await city.save();
+ 
+    res.status(201).json(newPost);
   } catch (error) {
+    
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }

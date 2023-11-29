@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
 
 const citySchema = new mongoose.Schema({
-  name: [
-    {
-      required: true,
-      type: String,
-    },
-  ],
+  name: {
+    required: true,
+    type: String,
+  },
   position: {
     lat: {
       type: Number,
@@ -17,6 +15,12 @@ const citySchema = new mongoose.Schema({
       required: true,
     },
   },
+  posts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    },
+  ],
 });
 
 const City = mongoose.model("City", citySchema);
