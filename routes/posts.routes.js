@@ -3,6 +3,7 @@ const router = express.Router();
 const { isAuthenticated } = require('../middleware/jwt.middleware')
 const Post = require("../models/Post.model");
 const City = require("../models/City.model");
+const fileUploader = require('../config/cloudinary.config');
 
 router.use(isAuthenticated);
 
@@ -15,7 +16,7 @@ router.get("/:cityId", async (req, res) => {
     if (!city) {
       return res.status(404).json({ error: 'City not found' });
     }
-    const posts = await Post.find({ _id: { $in: city.posts } }).populate('user');
+    const posts = await Post.find({ _id: { $in: city.posts } }).populate('likes').populate('user');
 
     res.json({ city, posts });
   } catch (error) {
@@ -24,9 +25,9 @@ router.get("/:cityId", async (req, res) => {
   }
 });
 
-router.post("/:cityId", async (req, res) => {
+router.post("/:cityId", fileUploader.single('photo'),  async (req, res) => {
   const { cityId } = req.params;
-  const { caption, photo, user } = req.body;
+  const { caption, user } = req.body;
   console.log('Received CityId:', cityId); 
 
   try {
@@ -38,7 +39,7 @@ router.post("/:cityId", async (req, res) => {
 
     const newPost = new Post({
       caption,
-      photo,
+      photo: req.file.path,
       user,
       city: cityId,
     });

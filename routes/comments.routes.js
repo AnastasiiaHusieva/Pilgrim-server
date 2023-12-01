@@ -20,6 +20,9 @@ router.get("/:postId", async (req, res) => {
 
 router.post("/add", async (req, res) => {
   const { userId, content, postId } = req.body;
+  console.log(userId)
+  console.log(content)
+  console.log(postId)
   try {
     if (!userId || !content || !postId) {
       return res.status(400).json({ error: "Missing required data" });
