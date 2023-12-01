@@ -18,6 +18,9 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Name is required."],
     },
+    photo: {
+      type: String
+    },
     // myconversations: [
     //   {
     //     type: Schema.Types.ObjectId,
