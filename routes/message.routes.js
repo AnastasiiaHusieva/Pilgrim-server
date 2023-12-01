@@ -56,18 +56,35 @@ router.post("/messages", async (req, res) => {
     const savedMessage = await newMessage.save();
 
     // Update the sender's and recipient's messagesSent and messagesReceived arrays
-    await Chat.findByIdAndUpdate(
+    const newChat = await Chat.findByIdAndUpdate(
       chatId,
       {
         $push: { messages: savedMessage._id },
       },
       { new: true }
     );
-    pusher.trigger();
-    res.status(201).json(savedMessage);
+
+    console.log("C:", newChat);
+
+    const allMessages = await Chat.findById(chatId).populate("messages");
+
+    console.log("A: ", allMessages);
+
+    pusher.trigger(`chat_${chatId}`, "message", allMessages);
+    res.status(201).json(allMessages);
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.get("/messages/:id", async (req, res) => {
+  try {
+    const chatId = req.params.id;
+    const chat = await Chat.findById(chatId).populate("messages");
+    res.status(200).json(chat);
+  } catch (error) {
+    console.log(error);
   }
 });
 

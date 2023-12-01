@@ -19,6 +19,23 @@ router.get("/:currentUserId", async (req, res) => {
     res.status(500).json({ error: "Internal Server error" });
   }
 });
+router.get("/recipient/:recipientId", async (req, res) => {
+  try {
+    const recipientId = req.params.recipientId;
+    console.log("backend", recipientId);
+    const recipientChat = await Chat.find({
+      recipientId: recipientId,
+    }).populate("messages");
+    if (!recipientChat) {
+      return res.status(404).json({ error: "chat not found" });
+    }
+    console.log("backend 2", recipientChat);
+    res.json(recipientChat);
+  } catch (error) {
+    console.log("Error fetching userdata:", error);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+});
 
 router.post("/", async (req, res) => {
   try {

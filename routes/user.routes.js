@@ -10,7 +10,7 @@ router.get("/:userId", async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    console.log("@@@@@@@", user);
+    // console.log("@@@@@@@", user);
     res.json({ name: user.name, email: user.email });
   } catch (error) {
     console.log("Error fetching userdata:", error);
