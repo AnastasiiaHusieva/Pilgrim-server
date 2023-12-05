@@ -25,20 +25,6 @@ const pusher = new Pusher({
 //     });
 // });
 
-// router.get("/:userId", (req, res, next) => {
-//   const userId = req.params.userId;
-//   console.log("Received user ID:", userId);
-//   User.findById(userId)
-//     .populate("myconversations")
-//     .then((conversations) => {
-//       res.status(200).json(conversations);
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       res.status(500).json("Error: internal Server Error");
-//     });
-// });
-
 // create new message on already existing chats
 router.post("/messages", async (req, res) => {
   try {
@@ -66,11 +52,13 @@ router.post("/messages", async (req, res) => {
 
     console.log("C:", newChat);
 
+    // console.log("THIS IS THE CHAT: ", chatId);
+
     const allMessages = await Chat.findById(chatId).populate("messages");
 
     console.log("A: ", allMessages);
 
-    pusher.trigger(`chat_${chatId}`, "message", allMessages);
+    pusher.trigger(`chat`, "message", allMessages);
     res.status(201).json(allMessages);
   } catch (error) {
     console.error("Error:", error);
@@ -189,4 +177,18 @@ router.post("/newchat", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+// router.get("/messages/:userId", (req, res, next) => {
+//   const userId = req.params.userId;
+//   console.log("Received user ID:", userId);
+//   Message.find(recipientId, { userId })
+//     .populate("messages")
+//     .then((messages) => {
+//       res.status(200).json(messages);
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       res.status(500).json("Error: internal Server Error");
+//     });
+// });
 module.exports = router;

@@ -47,4 +47,21 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+router.get("/recieved/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log("OOOOOOOOO", userId);
+    const chat = await Chat.find({
+      $or: [{ recipientId: userId }, { senderId: userId }],
+    }).populate("messages");
+    if (!chat) {
+      return res.status(404).json({ error: "chat not found" });
+    }
+    console.log("iiiiiiiii", chat);
+    res.json(chat);
+  } catch (error) {
+    console.log("Error fetching recieved messaged:", error);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+});
 module.exports = router;

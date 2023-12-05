@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
-//const { isAuthenticated } = require('../middleware/jwt.middleware')
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 const Post = require("../models/Post.model");
 const City = require("../models/City.model");
-const Like = require("../models/Like.model");
-const Comment = require("../models/Comment.model");
 const fileUploader = require("../config/cloudinary.config");
 
 //router.use(isAuthenticated);
@@ -23,43 +21,6 @@ router.get("/:cityId", async (req, res) => {
       .populate("user");
 
     res.json({ city, posts });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-router.get("/post/:postId", async (req, res) => {
-  const { postId } = req.params;
-  console.log("Received PostId:", postId);
-  try {
-    const post = await Post.findById(postId)
-      .populate([
-        {
-          path: "likes",
-          populate: [
-            {
-              path: "user",
-            },
-          ],
-        },
-        {
-          path: "comments",
-          populate: [
-            {
-              path: "user",
-            },
-          ],
-        },
-      ])
-      .populate("user");
-
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
-    }
-
-    console.log(post);
-    res.json({ post });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -95,55 +56,4 @@ router.post("/:cityId", fileUploader.single("photo"), async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-router.patch("/:postId", async (req, res) => {
-  const { postId } = req.params;
-  const { caption } = req.body;
-  try {
-    const post = await Post.findById(postId);
-
-    if (!post) {
-      return res.status(404).json({ error: "Comment not found" });
-    }
-
-    post.caption = caption;
-
-    await post.save();
-
-    res.status(200).json(post);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-router.delete("/:postId", async (req, res) => {
-  const { postId } = req.params;
-
-  try {
-    const post = await Post.findById(postId).exec();
-
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
-    }
-
-    await Comment.find({ post: postId });
-
-    await Like.deleteMany({ post: postId });
-
-    const city = await City.findByIdAndUpdate(post.city, {
-      $pull: { posts: postId },
-    });
-    console.log("poooooostttttt", post);
-    await Post.deleteOne({ _id: post._id });
-
-    res
-      .status(200)
-      .json({ message: "Post, comments, and likes deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
 module.exports = router;
