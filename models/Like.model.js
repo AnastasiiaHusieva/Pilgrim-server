@@ -11,10 +11,17 @@ const likeSchema = new mongoose.Schema({
     ref: 'Post',
     required: true,
   },
+  isRead: {
+    type: Boolean,
+    default: false
+  },
   created_at: {
     type: Date,
     default: Date.now,
   },
+},
+{
+  timestamps: true
 });
 
 const Like = mongoose.model('Like', likeSchema);

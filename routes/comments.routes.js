@@ -66,4 +66,33 @@ router.patch("/:commentId", async (req, res) => {
   }
 });
 
+router.delete("/:commentId", async (req, res) => {
+  const { commentId } = req.params;
+
+  try {
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    const postId = comment.post;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    post.comments = post.comments.filter(comment => comment.toString() !== commentId);
+    await post.save();
+
+    await Comment.findByIdAndDelete(commentId);
+
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 module.exports = router;
