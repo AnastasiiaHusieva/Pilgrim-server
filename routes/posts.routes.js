@@ -145,5 +145,24 @@ router.delete("/:postId", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+router.get("/cities/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  console.log("Received userId:", userId);
+  try {
+    const post = await Post.find({ user: userId })
+      .populate("city")
+      .populate("comments")
+      .populate("user");
 
+    if (!post) {
+      return res.status(404).json({ error: "post not found" });
+    }
+    // const posts = await Post.find({ _id: { $in: city.posts } }).populate('likes').populate('user');
+
+    res.json(post);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 module.exports = router;
