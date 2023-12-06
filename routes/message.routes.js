@@ -13,7 +13,7 @@ const pusher = new Pusher({
   forceTLS: true,
 });
 
-// router.get("/", (req, res, next) => {
+// router.get("/messages", (req, res, next) => {
 //   Message.find()
 //     .populate("senderId")
 //     .then((messages) => {
@@ -178,17 +178,25 @@ router.post("/newchat", async (req, res) => {
   }
 });
 
-// router.get("/messages/:userId", (req, res, next) => {
-//   const userId = req.params.userId;
-//   console.log("Received user ID:", userId);
-//   Message.find(recipientId, { userId })
-//     .populate("messages")
-//     .then((messages) => {
-//       res.status(200).json(messages);
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       res.status(500).json("Error: internal Server Error");
-//     });
-// });
+router.patch("/messages/isRead/:chatId", async (req, res, next) => {
+  const chatId = req.params.chatId;
+  console.log("Received user chatId:", chatId);
+  try {
+    const chat = await Chat.findById(chatId).populate("messages");
+    if (!chat) {
+      return res.status(404).json({ error: "Chat not found" });
+    }
+    // Get the message IDs from the populated messages
+    const messageIds = chat.messages.map((message) => message._id);
+
+    await Message.updateMany(
+      { _id: { $in: messageIds } },
+      { $set: { isRead: true } }
+    );
+    res.status(200).json({ message: "Messages marked as read" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 module.exports = router;
