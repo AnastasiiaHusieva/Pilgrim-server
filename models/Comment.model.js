@@ -15,9 +15,9 @@ const commentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  created_at: {
-    type: Date,
-    default: Date.now,
+  isRead: {
+    type: Boolean,
+    default: false,
   },
 },
 {

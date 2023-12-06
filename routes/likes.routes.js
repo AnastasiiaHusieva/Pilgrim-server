@@ -3,9 +3,7 @@ const router = express.Router();
 const Like = require("../models/Like.model");
 const Post = require("../models/Post.model");
 
-router.get("/", (req,res) => {
-  res.send("heyyyy")
-})
+
 router.get('/:postId', async (req, res) => {  console.log('get likes');
   const { postId } = req.params;
 

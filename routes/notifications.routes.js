@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const Post = require("../models/Post.model");
+const Like = require("../models/Like.model");
+const Comment = require("../models/Comment.model");
+const mongoose = require('mongoose');
 
 router.get("/:userId", async (req, res) => {
     const {userId}  = req.params;
@@ -55,7 +58,6 @@ router.get("/:userId", async (req, res) => {
       notifications = [...notifications, ...likes, ...comments];
     });
 
-    // Exclude notifications related to the logged-in user
     notifications = notifications.filter(
       (notification) => notification.user._id.toString() !== userId
     );
@@ -69,18 +71,64 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
-router.post("/mark-notifications-as-read", async (req, res)=> {
-  const { userId } = req.body;
-  console.log(userId)
+router.get("/unread-notifications-count/:userId", async (req, res) => { 
+  const { userId } = req.params;
+  console.log("11111111",userId)
+
   try {
-    await Notification.updateMany({ userId, isRead: false }, { isRead: true })
+    const userPosts = await Post.find({ user: userId });
+    console.log("User posts:", userPosts);
 
-    res.json({ message: 'Notifications marked as read successfully' })
+    const postIds = userPosts.map((post) => post._id);
+    console.log("Post IDs:", postIds);
+    const unreadLikesCount = await Like.countDocuments({
+      post: { $in: postIds },
+      user: { $ne: userId },
+      isRead: false,
+    });
 
+    const unreadCommentsCount = await Comment.countDocuments({
+      post: { $in: postIds },
+      user: { $ne: userId }, 
+      isRead: false,
+    });
+    console.log("Unread Likes Count:", unreadLikesCount);
+    console.log("Unread Comments Count:", unreadCommentsCount);
+    res.json({
+      unreadLikesCount,
+      unreadCommentsCount,
+    });
   } catch (error) {
-    console.error('Error fetching notifications:', error);
+    console.error('Error counting unread notifications:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-})
+});
+
+
+router.post("/mark-notifications-as-read/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+
+  try {
+    const userPosts = await Post.find({user: userId})
+
+    const postIds = userPosts.map(post => post._id);
+
+    await Like.updateMany(
+      { post: { $in: postIds }},
+      { $set: { isRead: true } }
+    );
+
+    await Comment.updateMany(
+      { post: { $in: postIds }},
+      { $set: { isRead: true } }
+    );
+
+    res.json({ message: 'Notifications marked as read successfully' });
+  } catch (error) {
+    console.error('Error marking notifications as read:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 module.exports = router;
