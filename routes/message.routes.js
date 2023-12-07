@@ -56,8 +56,20 @@ router.post("/messages", async (req, res) => {
 
     const allMessages = await Chat.findById(chatId).populate("messages");
 
-    console.log("A: ", allMessages);
+    const slicedMessages = allMessages.messages.slice(
+      allMessages.messages.length - 10
+    );
+    //allMessages.messages.slice(allMessages.messages.length - 12);
 
+    // let slicedMessages = [];
+
+    // for (let i = allMessages.messages.length - 10; i < allMessages.messages.length - 1; i++) {
+    //   slicedMessages.push(allMessages.messages);
+    // }
+
+    allMessages.messages = slicedMessages;
+
+    console.log("A: ", allMessages);
     pusher.trigger(`chat`, "message", allMessages);
     res.status(201).json(allMessages);
   } catch (error) {
